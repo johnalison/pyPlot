@@ -1,6 +1,7 @@
 import numpy as np 
 import json
 import matplotlib.pyplot as plt 
+from copy import copy
 
 inFile = "test/testInputs.json"
 
@@ -29,15 +30,42 @@ def ls(d=None, maxLevel = -1):
         printDir(data[d], level = 0, maxLevel = maxLevel)
 
 
-def getData(path):
+def rebinData(inData,rebin):
+    print(f'rebining with rebin={rebin}')
+
+    #plotData["bins"] = np.array(inData["bins"])
+    #plotData["n"]    = np.array(inData["n"])
+
+    n = inData["n"]
+    bins = inData["bins"]
+    rebinnedBins = bins[0::rebin]
+    rebinnedIndices = np.where(np.isin(bins, rebinnedBins))[0]
+    rebinnedData = [np.sum( n[rebinnedIndices[i]:rebinnedIndices[i+1]])  for i in range(len(rebinnedIndices)-1)]
+
+    inData["n"] = np.array(rebinnedData)
+    inData["bins"] = rebinnedBins
+    
+    
+def getData(path, rebin=None):
 
     keys = path.split("/")
-    plotData = data
-    for k in keys:
-        plotData = plotData[k]
 
+    # The copies here all us to rebin
+    plotData = copy(data)
+    for k in keys:
+        plotData = copy(plotData[k])
+
+        
     plotData["bins"] = np.array(plotData["bins"])
     plotData["n"]    = np.array(plotData["n"])
+
+    print(f'Bins before {plotData["bins"]}')
+    
+    if rebin: rebinData(plotData, rebin)
+
+    print(f'Bins after {plotData["bins"]}')
+    
+        
     return plotData
 
 
@@ -57,7 +85,7 @@ def configAxes(inAxis, **kwargs):
 
 
 def plotRatio(dataToPlot, **kwargs):
-    debug = kwargs["debug"] if "debug" in kwargs else False
+    debug = kwargs.get("debug",False)
     
     if debug:
         print(f'Called plotRatio')
@@ -65,7 +93,7 @@ def plotRatio(dataToPlot, **kwargs):
 
     fig, axs = plt.subplots(2,1,figsize=(7,5*4/3), gridspec_kw={'height_ratios': [3, 1]})
     plt.subplots_adjust(hspace=0.05)
-
+    
 
     axs[0].errorbar(
         binCenters(dataToPlot[0]["bins"]),
@@ -74,15 +102,27 @@ def plotRatio(dataToPlot, **kwargs):
         marker = '.',
         fmt = '.k',
         linewidth=2,
-        markersize=10
+        markersize=10,
+        label=kwargs.get("labels",["",""])[0]
     )
-    axs[0].hist(binCenters(dataToPlot[1]["bins"]) ,bins=dataToPlot[1]["bins"], weights=dataToPlot[1]["n"],histtype="stepfilled",color=myyellow,ec="k",linewidth=1.5)
 
+    axs[0].hist(binCenters(dataToPlot[1]["bins"]) ,bins=dataToPlot[1]["bins"], weights=dataToPlot[1]["n"],histtype="stepfilled",color=myyellow,ec="k",linewidth=1.5, label=kwargs.get("labels",["",""])[1])
+
+    
     axs[0].set_xticklabels([])
     axs[0].set_xticks([])
 
+    
     configAxes(axs[0],**kwargs)
     axs[0].set_xlabel("")
+
+    #
+    #  Legend
+    # 
+    handles, labels = axs[0].get_legend_handles_labels()
+    if len(labels):
+        order = [1,0]
+        axs[0].legend([handles[idx] for idx in order],[labels[idx] for idx in order],loc="best",frameon=False) 
 
         
     #
@@ -91,6 +131,12 @@ def plotRatio(dataToPlot, **kwargs):
     epsilon = 0#1e-4
     ratio = (dataToPlot[0]["n"]/(dataToPlot[1]["n"]+epsilon))
 
+    # sigma_r / r = sigma_n / n (inquad) sigma_d / d
+    sigmaNoverN = dataToPlot[0]["n"]**0.5 / dataToPlot[0]["n"]
+    sigmaDoverD = dataToPlot[1]["n"]**0.5 / dataToPlot[1]["n"]
+    relErr = (sigmaNoverN*sigmaNoverN + sigmaDoverD* sigmaDoverD)**0.5
+    ratioErr = relErr * ratio
+    
     axs[1].set_yscale("linear")    
     configAxes(axs[1],**kwargs)    
     axs[1].set_yscale("linear")
@@ -102,8 +148,18 @@ def plotRatio(dataToPlot, **kwargs):
 
     if "rlim" in kwargs: axs[1].set_ylim(kwargs["rlim"])    
     
-    axs[1].plot(binCenters(dataToPlot[0]["bins"]), ratio,c="k")
+    #axs[1].plot(binCenters(dataToPlot[0]["bins"]), ratio,c="k")
+    axs[1].errorbar(
+        binCenters(dataToPlot[0]["bins"]),
+        ratio,
+        yerr = ratioErr,
+        marker = '.',
+        fmt = '.k',
+        linewidth=2,
+        markersize=10
+    )
 
+    
     xMin = dataToPlot[0]["bins"][0]
     xMax = dataToPlot[0]["bins"][-1]
     axs[1].plot([xMin,xMax],[1,1],"k:")
@@ -115,44 +171,50 @@ def plotRatio(dataToPlot, **kwargs):
     
 def plotHists(dataToPlot, **kwargs):
 
-    debug = kwargs["debug"] if "debug" in kwargs else False
+    debug = kwargs.get("debug",False)
     
     if debug:
         print(f'Called plot')
         print_parameters(**kwargs)
 
-    if "doratio" in kwargs and kwargs["doratio"]:
+    if kwargs.get("doratio",False)  and len(dataToPlot) > 1:
         plotRatio(dataToPlot, **kwargs)
         return
 
         
     fig, ax = plt.subplots(1,1,figsize=(7,5))
         
-    ax.errorbar(
-        binCenters(dataToPlot[0]["bins"]),
-        dataToPlot[0]["n"],
-        yerr = dataToPlot[0]["n"]**0.5,
-        marker = '.',
-        fmt = '.k',
-        markersize=10
-    )
-    
+        
     if len(dataToPlot) == 2:
 
-        ax.hist(binCenters(dataToPlot[1]["bins"]) ,bins=dataToPlot[1]["bins"], weights=dataToPlot[1]["n"],histtype="stepfilled",color=myyellow, ec="k",linewidth=1.5)
-        #ax.hist(binCenters(dataToPlot[1]["bins"]) ,bins=dataToPlot[1]["bins"], weights=dataToPlot[1]["n"],histtype="step",color="k",linewidth=1.5)
+        ax.errorbar(
+            binCenters(dataToPlot[0]["bins"]),
+            dataToPlot[0]["n"],
+            yerr = dataToPlot[0]["n"]**0.5,
+            marker = '.',
+            fmt = '.k',
+            markersize=10,
+            label=kwargs.get("labels",["",""])[0]
+        )
+            
+        ax.hist(binCenters(dataToPlot[1]["bins"]) ,bins=dataToPlot[1]["bins"], weights=dataToPlot[1]["n"],histtype="stepfilled",color=myyellow, ec="k",linewidth=1.5,label=kwargs.get("labels",["",""])[1])
+        leg_order = [1,0]
 
-#    ax.errorbar(
-#        binCenters(dataToPlot[0]["bins"]),
-#        dataToPlot[0]["n"],
-#        yerr = dataToPlot[0]["n"]**0.5,
-#        marker = '.',
-#        fmt = '.k',
-#        markersize=10
-#    )
+    else:
+        ax.hist(binCenters(dataToPlot[0]["bins"]) ,bins=dataToPlot[0]["bins"], weights=dataToPlot[0]["n"],histtype="stepfilled",color=myyellow, ec="k",linewidth=1.5,label=kwargs.get("labels",["",""])[0])
+        leg_order = [0]
 
         
     configAxes(ax,**kwargs)
+
+    #
+    #  Legend
+    # 
+    handles, labels = ax.get_legend_handles_labels()
+
+    if len(labels):
+        ax.legend([handles[idx] for idx in leg_order],[labels[idx] for idx in leg_order],loc="best",frameon=False) 
+
     
     plt.show()
     return
@@ -169,7 +231,7 @@ def print_parameters(**kwargs):
     
 def plot(var,inDir, **kwargs):
 
-    debug = kwargs["debug"] if "debug" in kwargs else False
+    debug = kwargs.get("debug",False)
 
     if debug:
         print(f'Called plot with var={var} and inDir={inDir}')
@@ -183,29 +245,29 @@ def plot(var,inDir, **kwargs):
         checkList(inDir)
         checkList(var)
 
-        dataToPlot.append(getData(inDir[0]+"/"+var[0]))
-        dataToPlot.append(getData(inDir[1]+"/"+var[1]))
+        dataToPlot.append(getData(inDir[0]+"/"+var[0], rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inDir[1]+"/"+var[1], rebin=kwargs.get("rebin",None)))
 
     # plot 1 vars from 2 differnet dirs
     elif type(inDir) == list and not type(var) == list:
 
         checkList(inDir)
 
-        dataToPlot.append(getData(inDir[0]+"/"+var))
-        dataToPlot.append(getData(inDir[1]+"/"+var))
+        dataToPlot.append(getData(inDir[0]+"/"+var, rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inDir[1]+"/"+var, rebin=kwargs.get("rebin",None)))
 
     # plot 2 different vars from 1  dirs        
     elif not type(inDir) == list and type(var) == list:
 
         checkList(var)
 
-        dataToPlot.append(getData(inDir+"/"+var[0]))
-        dataToPlot.append(getData(inDir+"/"+var[1]))
+        dataToPlot.append(getData(inDir+"/"+var[0], rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inDir+"/"+var[1], rebin=kwargs.get("rebin",None)))
 
         
     # plot 1 vars from 1  dirs
     else:
-        dataToPlot.append(getData(inDir+"/"+var))
+        dataToPlot.append(getData(inDir+"/"+var, rebin=kwargs.get("rebin",None)))
 
 
     #
