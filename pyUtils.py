@@ -8,5 +8,5 @@ def parseOpts():
     p.add_option('--output',   type = 'string', default = "plots",          dest = 'output',     help = 'output dir' )
     (o,a) = p.parse_args()
 
-
+    
     return (o,a)

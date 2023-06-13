@@ -1,3 +1,4 @@
+import os
 import numpy as np 
 import json
 import matplotlib.pyplot as plt 
@@ -20,6 +21,11 @@ if nInputs > 1:
         inputData1 = json.load(f)
 else:
     inputData1 = inputData0
+
+
+if not os.path.exists(options.output):
+    os.mkdir(options.output)
+
     
 
         
@@ -66,7 +72,8 @@ def getData(dataSet, path, rebin=None):
         
     plotData["bins"] = np.array(plotData["bins"])
     plotData["n"]    = np.array(plotData["n"])
-
+    plotData["name"] = path.replace("/","_")
+    
     #print(f'Bins before {plotData["bins"]}')
     
     if rebin: rebinData(plotData, rebin)
@@ -171,8 +178,9 @@ def plotRatio(dataToPlot, **kwargs):
     xMax = dataToPlot[0]["bins"][-1]
     axs[1].plot([xMin,xMax],[1,1],"k:")
 
-    
+    plt.savefig(options.output+"/"+dataToPlot[0]["name"]+"_vs_"+dataToPlot[1]["name"]+".pdf")    
     plt.show()
+
     return
         
     
