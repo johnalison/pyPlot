@@ -3,14 +3,26 @@ import json
 import matplotlib.pyplot as plt 
 from copy import copy
 
-inFile = "test/testInputs.json"
-
-with open(inFile, 'r') as f:
-  data = json.load(f)
-
 myyellow = (1, 1, 84./255)
 
+from pyUtils import parseOpts
+(options, args) = parseOpts()
 
+
+nInputs = len(args)
+print(f"Will read from {nInputs} input files")
+
+with open(args[0], 'r') as f:
+    inputData0 = json.load(f)
+
+if nInputs > 1:
+    with open(args[1], 'r') as f:
+        inputData1 = json.load(f)
+else:
+    inputData1 = inputData0
+    
+
+        
 def printDir(data, level=0, maxLevel=-1):
     if not hasattr(data,"keys"):
         return
@@ -33,9 +45,6 @@ def ls(d=None, maxLevel = -1):
 def rebinData(inData,rebin):
     print(f'rebining with rebin={rebin}')
 
-    #plotData["bins"] = np.array(inData["bins"])
-    #plotData["n"]    = np.array(inData["n"])
-
     n = inData["n"]
     bins = inData["bins"]
     rebinnedBins = bins[0::rebin]
@@ -46,25 +55,23 @@ def rebinData(inData,rebin):
     inData["bins"] = rebinnedBins
     
     
-def getData(path, rebin=None):
+def getData(dataSet, path, rebin=None):
 
     keys = path.split("/")
 
     # The copies here all us to rebin
-    plotData = copy(data)
+    plotData = copy(dataSet)
     for k in keys:
         plotData = copy(plotData[k])
-
         
     plotData["bins"] = np.array(plotData["bins"])
     plotData["n"]    = np.array(plotData["n"])
 
-    print(f'Bins before {plotData["bins"]}')
+    #print(f'Bins before {plotData["bins"]}')
     
     if rebin: rebinData(plotData, rebin)
 
-    print(f'Bins after {plotData["bins"]}')
-    
+    #print(f'Bins after {plotData["bins"]}')
         
     return plotData
 
@@ -245,30 +252,32 @@ def plot(var,inDir, **kwargs):
         checkList(inDir)
         checkList(var)
 
-        dataToPlot.append(getData(inDir[0]+"/"+var[0], rebin=kwargs.get("rebin",None)))
-        dataToPlot.append(getData(inDir[1]+"/"+var[1], rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inputData0,inDir[0]+"/"+var[0], rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inputData1,inDir[1]+"/"+var[1], rebin=kwargs.get("rebin",None)))
 
     # plot 1 vars from 2 differnet dirs
     elif type(inDir) == list and not type(var) == list:
 
         checkList(inDir)
 
-        dataToPlot.append(getData(inDir[0]+"/"+var, rebin=kwargs.get("rebin",None)))
-        dataToPlot.append(getData(inDir[1]+"/"+var, rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inputData0,inDir[0]+"/"+var, rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inputData1,inDir[1]+"/"+var, rebin=kwargs.get("rebin",None)))
 
     # plot 2 different vars from 1  dirs        
     elif not type(inDir) == list and type(var) == list:
 
         checkList(var)
 
-        dataToPlot.append(getData(inDir+"/"+var[0], rebin=kwargs.get("rebin",None)))
-        dataToPlot.append(getData(inDir+"/"+var[1], rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inputData0,inDir+"/"+var[0], rebin=kwargs.get("rebin",None)))
+        dataToPlot.append(getData(inputData1,inDir+"/"+var[1], rebin=kwargs.get("rebin",None)))
 
         
     # plot 1 vars from 1  dirs
     else:
-        dataToPlot.append(getData(inDir+"/"+var, rebin=kwargs.get("rebin",None)))
-
+        dataToPlot.append(getData(inputData0,inDir+"/"+var, rebin=kwargs.get("rebin",None)))
+        if nInputs > 1: dataToPlot.append(getData(inputData1,inDir+"/"+var, rebin=kwargs.get("rebin",None)))
+            
+        
 
     #
     # plotHits
