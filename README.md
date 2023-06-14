@@ -4,8 +4,13 @@ Interactive matplot lib script.
 Reads in json file and makes interactive plots
 
 ```
-  py -i pyPlot.py test/testInputs.json
-  py -i pyPlot.py test/testInputs.json    test/testInputs2.json  
+  > pyPlot test/testInputs.json
+```
+
+or
+
+```
+  > pyPlot test/testInputs.json    test/testInputs2.json  
 ```
 
 Examples:
