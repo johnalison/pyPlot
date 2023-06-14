@@ -20,6 +20,12 @@ Examples:
 >  cd myPyPlotEnv
 >  source bin/activate
 >  python3 -m pip install -r ../requirements.txt
+>  cd ../
+
+# Then each time
+
+> source setup.sh
+
 
 # Initial Development
 

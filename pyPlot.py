@@ -113,7 +113,7 @@ def plotRatio(dataToPlot, **kwargs):
         binCenters(dataToPlot[0]["bins"]),
         dataToPlot[0]["n"],
         yerr = dataToPlot[0]["n"]**0.5,
-        marker = '.',
+        #marker = '.',
         fmt = '.k',
         linewidth=2,
         markersize=10,
@@ -167,7 +167,7 @@ def plotRatio(dataToPlot, **kwargs):
         binCenters(dataToPlot[0]["bins"]),
         ratio,
         yerr = ratioErr,
-        marker = '.',
+        #marker = '.',
         fmt = '.k',
         linewidth=2,
         markersize=10
