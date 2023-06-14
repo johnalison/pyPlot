@@ -1,24 +1,41 @@
+Interactive script for plotting in python.
+Reads in json file of histograms (stored as py arrays) and makes interactive plots using matplotlib.
 
-Interactive matplot lib script.
+# Usage: 
 
-Reads in json file and makes interactive plots
+Plotting from one file
 
 ```
   > pyPlot test/testInputs.json
 ```
 
-or
+or when plotting from two files
 
 ```
   > pyPlot test/testInputs.json    test/testInputs2.json  
 ```
 
-Examples:
+# Examples Commands 
 
+List the directories and plots in the file
+
+```
 > ls()
-> plot(["var2","var2"],["dataSetA/dummy","dataSetB/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=False,rlim=[0.,2.],xlim=[0,2])
-> plot(["var2","var2"],["dataSetA/dummy","dataSetB/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0.,2.],xlim=[0,2])
-> plot(["var1","var1"],["dataSetB/dummy","dataSetA/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0,2],xlim=[-0.5,2],yscale="linear",labels=["var","d"],rebin=2)
+```
+
+Make plots with various option
+
+Plot one variable
+
+```python
+>>> plot( "var1","dataSetA/dummy",xMin=1,ylabel="Entries",xlabel="var1",xlim=[-0.5,2],yscale="linear",labels=["var"])
+```
+
+> plot(["var1","var2"],["dataSetA/dummy","dataSetB/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=False,xlim=[0,2])
+
+> plot(["var1","var2"],["dataSetA/dummy","dataSetB/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0.,2.],xlim=[0,2])
+
+> plot(["var1","var2"],["dataSetB/dummy","dataSetA/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0,2],xlim=[-0.5,2],yscale="linear",labels=["var 1","var 2"],rebin=2)
 
 
 # Initial Setup (only need once)
