@@ -28,44 +28,44 @@ Make plots with various options.
 Plot one variable
 
 ```python
->>> plot( "var1","dataSetA/dummy")
+ plot( "var1","dataSetA/dummy")
 ```
 
 Rebin the varible before plotting
 
 ```python
->>> plot( "var1","dataSetA/dummy", rebin=2)
+ plot( "var1","dataSetA/dummy", rebin=2)
 ```
 
 Plot one variable with style
 
 ```python
->>> plot( "var1","dataSetA/dummy",xMin=1,ylabel="Entries",xlabel="var1",xlim=[-0.5,2],yscale="linear",labels=["var"])
+ plot( "var1","dataSetA/dummy",xMin=1,ylabel="Entries",xlabel="var1",xlim=[-0.5,2],yscale="linear",labels=["var"])
 ```
 
 
 Plot two variables from one directory
 
 ```python
->>> plot( ["var1","var2"],"dataSetB/dummy",xMin=1,ylabel="Entries",xlabel="var1",xlim=[-0.5,2],yscale="linear",labels=["var 1","var 2"])
+ plot( ["var1","var2"],"dataSetB/dummy",xMin=1,ylabel="Entries",xlabel="var1",xlim=[-0.5,2],yscale="linear",labels=["var 1","var 2"])
 ```
 
 Plot two variables from one directory with ratio
 
 ```python
->>> plot( ["var1","var2"],"dataSetB/dummy",xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0,2],xlim=[-0.5,2],yscale="linear",labels=["var 1","var 2"],rebin=1)
+ plot( ["var1","var2"],"dataSetB/dummy",xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0,2],xlim=[-0.5,2],yscale="linear",labels=["var 1","var 2"],rebin=1)
 ```
 
 Plot one variables from two directories
 
 ```python
->>> plot( "var1",["dataSetA/dummy","dataSetB/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0,2],xlim=[-0.5,2],yscale="linear",labels=["Dataset A","Dataset B"],rebin=1)
+ plot( "var1",["dataSetA/dummy","dataSetB/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0,2],xlim=[-0.5,2],yscale="linear",labels=["Dataset A","Dataset B"],rebin=1)
 ```
 
 Plot two different variables from two different directories
 
 ```python
->>> plot( ["var1","var2"],["dataSetA/dummy","dataSetB/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0,2],xlim=[-0.5,2],yscale="linear",labels=["var 1 (Dataset A)","var 2 (Dataset B)"],rebin=1)
+ plot( ["var1","var2"],["dataSetA/dummy","dataSetB/dummy"],xMin=1,ylabel="Entries",xlabel="var2",doratio=True,rlim=[0,2],xlim=[-0.5,2],yscale="linear",labels=["var 1 (Dataset A)","var 2 (Dataset B)"],rebin=1)
 ```
 
 # Initial Setup (only need once)
