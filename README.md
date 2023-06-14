@@ -5,21 +5,21 @@ Reads in json file of histograms (stored as py arrays) and makes interactive plo
 
 Plotting from one file
 
-```
-  > pyPlot test/testInputs.json
+```bash
+> pyPlot test/testInputs.json
 ```
 
 or when plotting from two files
 
-```
-  > pyPlot test/testInputs.json    test/testInputs2.json  
+```bash
+> pyPlot test/testInputs.json    test/testInputs2.json  
 ```
 
 # Examples Commands 
 
 List the directories and plots in the file
 
-```
+```bash
 > ls()
 ```
 
@@ -70,22 +70,30 @@ Plot two different variables from two different directories
 
 # Initial Setup (only need once)
 
+```bash
 >  python3 -m venv myPyPlotEnv
 >  cd myPyPlotEnv
 >  source bin/activate
 >  python3 -m pip install -r ../requirements.txt
 >  cd ../
-
-# Then each time
-
 > source setup.sh
+```
 
+# Subsequent setups
+
+After initial setup, only have to do the following on subsequent sessions
+
+```bash
+> source setup.sh
+```
 
 # Initial Development
 
+```bash
 > python3 -m venv pyPlotEnv
 > cd pyPlotEnv/
 > source bin/activate
 > python3 -m pip install numpy
 > python3 -m pip install --upgrade pip
 > python3 -m pip install matplotlib
+```
